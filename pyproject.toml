@@ -1,0 +1,37 @@
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel",
+    "numpy>=2.0",
+]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "ligotools"
+version = "0.1.0"
+authors = [
+  { name="Ligo Scientific Collaboration (LSC) and Darlene Zhang", email="darlenezhang@berkeley.edu" },
+]
+description = "A Python library for Analysis of LIGO Data"
+readme = "README.md"
+
+requires-python = ">=3.9"
+dependencies = [
+    "numpy>=2.0",
+    "scipy>=1.13",
+    "h5py>=3.12", 
+    "matplotlib>=3.9",
+    "ipykernel>=6.29",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "black>=22.0",
+    "flake8>=4.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ligotools*"]
