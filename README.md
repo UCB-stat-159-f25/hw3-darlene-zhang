@@ -1,2 +1,5 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/wOo27OxG)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/UCB-stat-159-f25/hw3-darlene-zhang/HEAD?urlpath=%2Fdoc%2Ftree%2FLOSC_Event_tutorial.ipynb)
+
+This repository is my HW3 submission for STAT 159/259, where I reorganize the GW150914 LIGO analysis into a cleaner and fully reproducible Python package. The project focuses on working with sensitive gravitational wave strain data by implementing whitening, frequency shifting, audio conversion, and basic PSD visualization tools, along with tests to ensure everything behaves as expected. The directory layout, Makefile, and small MyST documentation site allow the analysis to be rebuilt and explored from scratch. The documentation site can be viewed here: https://ucb-stat-159-f25.github.io/hw3-darlene-zhang/
+. The overall goal is to show how real scientific data processing workflows can be packaged and shared in a transparent and reusable way.
