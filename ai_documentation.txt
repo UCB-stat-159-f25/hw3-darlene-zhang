@@ -1,0 +1,63 @@
+I used chatgpt to help me write test cases, i gave chatgpt the functions to have it tell me what it does and how to write a test case using the functions. 
+
+input: write tests for these functions : def whiten(strain, interp_psd, dt): Nt = len(strain) freqs = np.fft.rfftfreq(Nt, dt) freqs1 = np.linspace(0, 2048, Nt // 2 + 1) # whitening: transform to freq domain, divide by asd, then transform back, # taking care to get normalization right. hf = np.fft.rfft(strain) norm = 1./np.sqrt(1./(dt*2)) white_hf = hf / np.sqrt(interp_psd(freqs)) * norm white_ht = np.fft.irfft(white_hf, n=Nt) return white_ht def write_wavfile(filename, fs, data): d = np.int16(data/np.max(np.abs(data)) * 32767 * 0.9) wavfile.write(filename, int(fs), d) def reqshift(data, fshift=100, sample_rate=4096): """Frequency shift the signal by constant""" x = np.fft.rfft(data) T = len(data)/float(sample_rate) df = 1.0/T nbins = int(fshift/df) y = np.roll(x.real, nbins) + 1j*np.roll(x.imag, nbins) y[0:nbins] = 0. z = np.fft.irfft(y) return z def plot_psd(freqs, Pxx_H1, Pxx_L1, Pxx, eventname, f_min=20., f_max=2000.): """ Plot the ASDs for H1 and L1 detectors """ plt.figure(figsize=(10,8)) plt.loglog(freqs, np.sqrt(Pxx_L1), 'g', label='L1 strain') plt.loglog(freqs, np.sqrt(Pxx_H1), 'r', label='H1 strain') plt.loglog(freqs, np.sqrt(Pxx), 'k', label='H1 strain, O1 smooth model') plt.axis([f_min, f_max, 1e-24, 1e-19]) plt.grid('on') plt.ylabel('ASD (strain/rtHz)') plt.xlabel('Freq (Hz)') plt.legend(loc='upper center') plt.title('Advanced LIGO strain data near ' + eventname) plt.show()
+
+output:Perfect. Here are clean, minimal pytest tests for all four functions you listed.
+
+You can paste them into test_utils.py.
+
+✅ Imports (place at top of the file)
+import numpy as np
+import os
+from scipy.io import wavfile
+
+from utils import whiten, write_wavfile, reqshift, plot_psd
+
+1) Test whiten()
+
+This checks that the output has the same shape and is not all zeros:
+
+def test_whiten_basic():
+    dt = 1/4096
+    t = np.linspace(0, 1, 4096)
+    test_signal = np.sin(2*np.pi*100*t)
+
+    # fake PSD (constant)
+    interp_psd = lambda f: np.ones_like(f)
+
+    white = whiten(test_signal, interp_psd, dt)
+
+    assert len(white) == len(test_signal)
+    assert not np.allclose(white, 0.0)
+
+2) Test write_wavfile()
+
+Creates a file → checks existence → deletes cleanly.
+
+def test_write_wavfile_creates_audio_file():
+    test_data = np.array([0.1, -0.5, 0.8, -0.2], dtype=float)
+    test_filename = "temp_test.wav"
+    test_fs = 4096
+
+    write_wavfile(test_filename, test_fs, test_data)
+    assert os.path.exists(test_filename)
+
+    # read back and check sample rate
+    fs_out, _ = wavfile.read(test_filename)
+    assert fs_out == test_fs
+
+    if os.path.exists(test_filename):
+        os.remove(test_filename)
+
+3) Test reqshift()
+
+Shift by zero should produce identical signal.
+
+def test_reqshift_no_change_when_zero():
+    sample_rate = 4096
+    t = np.linspace(0, 1, sample_rate)
+    test_signal = np.sin(2*np.pi*200*t)
+
+    shifted_signal = reqshift(test_signal, fshift=0, sample_rate=sample_rate)
+
+    assert np.allclose(shifted_signal, test_signal)
